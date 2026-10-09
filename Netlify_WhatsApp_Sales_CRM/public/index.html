@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#5b2bc9">
+  <title>WhatsApp Sales Team CRM</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --brand:#5b2bc9;
+      --brand2:#7c4dff;
+      --ink:#17131f;
+      --muted:#77717f;
+      --line:#ece9f1;
+      --soft:#f7f5fa;
+      --success:#159947;
+      --danger:#dc3545;
+      --warning:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:#f5f3f8;color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    .app{min-height:100vh;display:flex}
+    .sidebar{width:250px;background:#fff;border-right:1px solid var(--line);position:fixed;inset:0 auto 0 0;z-index:1040;padding:18px 14px;overflow:auto}
+    .brand{display:flex;align-items:center;gap:10px;padding:8px 10px 22px;font-weight:800}
+    .brand-icon{width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;display:grid;place-items:center;box-shadow:0 8px 20px #5b2bc92b}
+    .nav-link{color:#68616f;border-radius:12px;margin:3px 0;padding:11px 12px;font-weight:650}
+    .nav-link:hover,.nav-link.active{background:#f0ebff;color:var(--brand)}
+    .nav-link i{width:23px}
+    .main{margin-left:250px;width:calc(100% - 250px);min-width:0}
+    .topbar{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:1020}
+    .mobile-menu{display:none}
+    .search{max-width:430px;width:100%;position:relative}
+    .search input{padding-left:40px;border:1px solid var(--line);border-radius:13px;background:#faf9fb}
+    .search i{position:absolute;left:14px;top:11px;color:#aaa}
+    .content{padding:24px}
+    .page{display:none}.page.active{display:block}
+    .cardx{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 30px #201a2b08}
+    .stat{padding:20px;position:relative;overflow:hidden}
+    .stat-icon{width:45px;height:45px;border-radius:14px;background:#f0ebff;color:var(--brand);display:grid;place-items:center}
+    .stat .value{font-size:28px;font-weight:800}
+    .stat .label{color:var(--muted);font-size:13px}
+    .stat .delta{font-size:12px;color:var(--success);font-weight:700}
+    .section-title{font-weight:800;margin:0}
+    .table>:not(caption)>*>*{padding:14px 12px}
+    .avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#ede8ff;color:var(--brand);font-weight:800;flex:0 0 auto}
+    .conversation-layout{display:grid;grid-template-columns:330px minmax(0,1fr) 280px;height:calc(100vh - 118px);min-height:580px}
+    .inbox-list{border-right:1px solid var(--line);overflow:auto}
+    .chat-panel{display:flex;flex-direction:column;min-width:0}
+    .profile-panel{border-left:1px solid var(--line);overflow:auto}
+    .chat-head,.profile-head{padding:14px 16px;border-bottom:1px solid var(--line);background:#fff}
+    .chat-body{flex:1;overflow:auto;padding:22px;background:#f8f6f3}
+    .bubble{max-width:72%;padding:10px 13px;border-radius:16px;margin:7px 0;line-height:1.4;box-shadow:0 2px 8px #0000000a}
+    .bubble.in{background:#fff;border-top-left-radius:4px}
+    .bubble.out{background:#e4d8ff;margin-left:auto;border-top-right-radius:4px}
+    .bubble-meta{font-size:10px;color:#8a8490;margin-top:4px;text-align:right}
+    .composer{padding:12px;border-top:1px solid var(--line);background:#fff}
+    .composer .form-control{border-radius:14px;background:#f7f5f9;border:0}
+    .conv-item{padding:13px 14px;border-bottom:1px solid #f1eef4;cursor:pointer}
+    .conv-item:hover,.conv-item.selected{background:#f3effd}
+    .conv-name{font-weight:750}
+    .conv-preview{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .badge-stage{font-size:10px;padding:5px 8px;border-radius:999px;background:#f0ebff;color:var(--brand)}
+    .pipeline{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:14px;overflow:auto}
+    .kanban{background:#f8f6fa;border:1px solid var(--line);border-radius:16px;padding:12px;min-height:420px}
+    .deal{background:#fff;border:1px solid var(--line);border-radius:13px;padding:13px;margin-top:10px;cursor:pointer}
+    .deal:hover{box-shadow:0 8px 20px #21173510}
+    .quick-template{cursor:pointer;border:1px solid var(--line);border-radius:13px;padding:12px;background:#fff}
+    .quick-template:hover{border-color:#c8b5ff;background:#fbf9ff}
+    .empty{padding:45px 20px;text-align:center;color:var(--muted)}
+    .status-dot{width:9px;height:9px;border-radius:50%;background:var(--success);display:inline-block}
+    .toast-wrap{position:fixed;right:20px;bottom:20px;z-index:3000}
+    .login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#20103fdd,#5b2bc9ee);z-index:3000;display:grid;place-items:center;padding:20px}.login-card{background:#fff;width:min(440px,100%);padding:30px;border-radius:24px;box-shadow:0 24px 80px #0004}.login-overlay.hidden{display:none}
+    .mobile-backdrop{display:none}
+    @media(max-width:1100px){
+      .conversation-layout{grid-template-columns:300px minmax(0,1fr)}
+      .profile-panel{display:none}
+      .pipeline{grid-template-columns:repeat(5,230px)}
+    }
+    @media(max-width:800px){
+      .sidebar{transform:translateX(-100%);transition:.2s;width:270px}
+      body.sidebar-open .sidebar{transform:translateX(0)}
+      body.sidebar-open .mobile-backdrop{display:block;position:fixed;inset:0;background:#0008;z-index:1030}
+      .main{margin-left:0;width:100%}
+      .mobile-menu{display:inline-flex}
+      .topbar{padding:0 13px}
+      .content{padding:14px}
+      .conversation-layout{height:calc(100vh - 98px);grid-template-columns:1fr}
+      .inbox-list{display:block}
+      .chat-panel{display:none}
+      .conversation-layout.chat-open .inbox-list{display:none}
+      .conversation-layout.chat-open .chat-panel{display:flex}
+      .chat-panel .chat-head:before{content:"←";font-size:22px;margin-right:12px;cursor:pointer}
+      .stat{padding:15px}
+    }
+  </style>
+</head>
+
+<body>
+<div id="loginOverlay" class="login-overlay"><form class="login-card" onsubmit="loginUser(event)"><div class="brand p-0 mb-4"><div class="brand-icon"><i class="fa-brands fa-whatsapp"></i></div><div><div>SalesFlow Business</div><small class="text-muted">Secure workspace sign-in</small></div></div><h3 class="fw-bold mb-2">Welcome back</h3><p class="text-muted">Sign in with your administrator-provisioned account.</p><label class="form-label">Email address</label><input id="loginEmail" type="email" class="form-control mb-3" autocomplete="username" required><label class="form-label">Password</label><input id="loginPassword" type="password" class="form-control mb-3" autocomplete="current-password" required><div id="loginError" class="small text-danger mb-3"></div><button class="btn btn-primary w-100 py-2" style="background:var(--brand);border:0">Sign in securely</button><div class="small text-muted mt-3">First setup: run <code>setupInitialAdmin(email, name, password)</code> once in Apps Script.</div></form></div>
+<div class="mobile-backdrop" onclick="toggleSidebar()"></div>
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-icon"><i class="fa-brands fa-whatsapp"></i></div>
+    <div>
+      <div>SalesFlow</div>
+      <small class="text-muted">WhatsApp CRM</small>
+    </div>
+  </div>
+
+  <div class="small text-uppercase text-muted fw-bold px-2 mb-2">Workspace</div>
+  <nav>
+    <a class="nav-link active" href="#dashboard" data-page="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+    <a class="nav-link" href="#inbox" data-page="inbox" data-permission="send_messages"><i class="fa-solid fa-comments"></i> Inbox <span id="navUnread" class="badge text-bg-danger float-end">0</span></a>
+    <a class="nav-link" href="#pipeline" data-page="pipeline" data-permission="manage_contacts"><i class="fa-solid fa-filter"></i> Pipeline</a>
+    <a class="nav-link" href="#contacts" data-page="contacts" data-permission="manage_contacts"><i class="fa-solid fa-users"></i> Contacts</a>
+    <a class="nav-link" href="#followups" data-page="followups" data-permission="manage_followups"><i class="fa-solid fa-clock"></i> Follow-ups</a>
+    <a class="nav-link" href="#templates" data-page="templates" data-permission="manage_templates"><i class="fa-solid fa-bolt"></i> Quick Replies</a>
+    <a class="nav-link" href="#team" data-page="team" data-permission="manage_users"><i class="fa-solid fa-user-group"></i> Team</a>
+    <a class="nav-link" href="#products" data-page="products" data-permission="manage_products"><i class="fa-solid fa-boxes-stacked"></i> Products & Stock</a>
+    <a class="nav-link" href="#quotations" data-page="quotations" data-permission="manage_sales_docs"><i class="fa-solid fa-file-lines"></i> Quotations</a>
+    <a class="nav-link" href="#invoices" data-page="invoices" data-permission="manage_sales_docs"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices</a>
+    <a class="nav-link" href="#reports" data-page="reports"><i class="fa-solid fa-chart-column"></i> Sales Reports</a>
+  </nav>
+
+  <hr>
+  <div class="small text-uppercase text-muted fw-bold px-2 mb-2">System</div>
+  <a class="nav-link" href="#automation" data-page="automation" data-permission="manage_settings"><i class="fa-solid fa-robot"></i> WhatsApp Automation</a>
+  <a class="nav-link" href="#audit" data-page="audit" data-permission="view_audit"><i class="fa-solid fa-clipboard-list"></i> Activity Log</a>
+  <a class="nav-link" href="#admin" data-page="admin" data-permission="manage_users"><i class="fa-solid fa-shield-halved"></i> Administration</a>
+        <a class="nav-link" href="#settings" data-page="settings" data-permission="manage_settings"><i class="fa-solid fa-gear"></i> Settings</a>
+  <div class="mt-4 p-3 rounded-4" style="background:#f5f1ff">
+    <div class="small fw-bold"><span class="status-dot me-1"></span> System online</div>
+    <div class="small text-muted mt-1">Google Sheets database</div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <button class="btn btn-light mobile-menu" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    <div class="search d-none d-md-block">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input id="globalSearch" class="form-control" placeholder="Search customers, conversations...">
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span id="modeBadge" class="badge rounded-pill text-bg-warning">CONNECTING</span>
+      <button class="btn btn-light rounded-circle" onclick="refreshData()" title="Refresh"><i class="fa-solid fa-rotate"></i></button>
+      <div class="text-end me-1 d-none d-sm-block"><div class="small fw-bold" id="currentUserName">Signed out</div><div class="small text-muted" id="currentUserRole"></div></div><button class="btn btn-outline-secondary btn-sm" onclick="logoutUser()" title="Sign out"><i class="fa-solid fa-right-from-bracket"></i></button><div class="avatar" id="currentAvatar">?</div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <section id="page-dashboard" class="page active">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div><h2 class="fw-bold mb-1">Sales command centre</h2><div class="text-muted">Turn WhatsApp conversations into revenue.</div></div>
+        <button class="btn btn-primary" style="background:var(--brand);border:0" onclick="openNewLead()"><i class="fa-solid fa-plus me-1"></i> New lead</button>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-3"><div class="cardx stat"><div class="stat-icon mb-3"><i class="fa-solid fa-inbox"></i></div><div class="value" id="statInbox">0</div><div class="label">Open conversations</div><div class="delta mt-1">Live inbox</div></div></div>
+        <div class="col-6 col-xl-3"><div class="cardx stat"><div class="stat-icon mb-3"><i class="fa-solid fa-user-plus"></i></div><div class="value" id="statLeads">0</div><div class="label">Active leads</div><div class="delta mt-1">Across pipeline</div></div></div>
+        <div class="col-6 col-xl-3"><div class="cardx stat"><div class="stat-icon mb-3"><i class="fa-solid fa-sack-dollar"></i></div><div class="value" id="statValue">M0</div><div class="label">Pipeline value</div><div class="delta mt-1">Potential revenue</div></div></div>
+        <div class="col-6 col-xl-3"><div class="cardx stat"><div class="stat-icon mb-3"><i class="fa-solid fa-clock"></i></div><div class="value" id="statFollowups">0</div><div class="label">Due follow-ups</div><div class="delta mt-1">Needs attention</div></div></div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-lg-8">
+          <div class="cardx p-3 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3"><h5 class="section-title">Recent conversations</h5><a href="#inbox">View inbox</a></div>
+            <div id="dashboardConversations"></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="cardx p-3 h-100">
+            <h5 class="section-title mb-3">Today's follow-ups</h5>
+            <div id="dashboardFollowups"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-inbox" class="page">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div><h2 class="fw-bold mb-1">WhatsApp inbox</h2><div class="text-muted">One workspace for the whole sales team.</div></div>
+        <button class="btn btn-primary" style="background:var(--brand);border:0" onclick="openNewLead()"><i class="fa-solid fa-plus me-1"></i> New conversation</button>
+      </div>
+      <div class="cardx overflow-hidden">
+        <div class="conversation-layout" id="conversationLayout">
+          <div class="inbox-list">
+            <div class="p-3 border-bottom">
+              <div class="input-group"><span class="input-group-text bg-light border-0"><i class="fa-solid fa-search"></i></span><input id="inboxSearch" class="form-control bg-light border-0" placeholder="Search inbox" oninput="renderInbox()"></div>
+              <div class="d-flex gap-2 mt-2">
+                <button class="btn btn-sm btn-light flex-fill" onclick="setInboxFilter('all')">All</button>
+                <button class="btn btn-sm btn-light flex-fill" onclick="setInboxFilter('unread')">Unread</button>
+                <button class="btn btn-sm btn-light flex-fill" onclick="setInboxFilter('mine')">Mine</button>
+              </div>
+            </div>
+            <div id="conversationList"></div>
+          </div>
+
+          <div class="chat-panel">
+            <div class="chat-head d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <div class="avatar" id="chatAvatar">?</div>
+                <div><div class="fw-bold" id="chatName">Select a conversation</div><small class="text-muted" id="chatPhone"></small></div>
+              </div>
+              <div class="dropdown"><button class="btn btn-light" data-bs-toggle="dropdown"><i class="fa-solid fa-ellipsis"></i></button><ul class="dropdown-menu dropdown-menu-end"><li><a class="dropdown-item" href="#" onclick="scheduleFromChat()">Schedule follow-up</a></li><li><a class="dropdown-item" href="#" onclick="markRead()">Mark read</a></li></ul></div>
+            </div>
+            <div class="chat-body" id="chatBody"><div class="empty"><i class="fa-brands fa-whatsapp fa-2x mb-2"></i><br>Select a conversation to start.</div></div>
+            <div class="composer">
+              <div class="d-flex gap-2">
+                <button class="btn btn-light" onclick="insertTemplate()" title="Quick reply"><i class="fa-solid fa-bolt"></i></button>
+                <textarea id="messageInput" class="form-control" rows="1" placeholder="Type a WhatsApp message..." onkeydown="handleComposerKey(event)"></textarea>
+                <button class="btn btn-primary px-4" style="background:var(--brand);border:0" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-panel">
+            <div class="profile-head"><h6 class="mb-0 fw-bold">Customer profile</h6></div>
+            <div id="profileBody" class="p-3"><div class="empty py-4">No customer selected.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-pipeline" class="page">
+      <div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold">Sales pipeline</h2><div class="text-muted">Move conversations from new lead to won.</div></div></div>
+      <div class="pipeline" id="pipelineBoard"></div>
+    </section>
+
+    <section id="page-contacts" class="page">
+      <div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold">Contacts</h2><div class="text-muted">Your WhatsApp customer database.</div></div><button class="btn btn-primary" style="background:var(--brand);border:0" onclick="openNewLead()"><i class="fa-solid fa-plus me-1"></i> Add contact</button></div>
+      <div class="cardx p-3 mb-3"><div class="row g-2"><div class="col-md-7"><input id="contactSearch" class="form-control" placeholder="Search name, phone, company..." oninput="renderContacts()"></div><div class="col-md-5"><select id="contactStageFilter" class="form-select" onchange="renderContacts()"><option value="">All stages</option><option>New</option><option>Contacted</option><option>Qualified</option><option>Proposal</option><option>Won</option><option>Lost</option></select></div></div></div>
+      <div class="cardx p-2"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Customer</th><th>Phone</th><th>Company</th><th>Stage</th><th>Owner</th><th>Value</th><th></th></tr></thead><tbody id="contactsTable"></tbody></table></div></div>
+    </section>
+
+    <section id="page-followups" class="page">
+      <div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold">Follow-ups</h2><div class="text-muted">Never lose a sales opportunity.</div></div><button class="btn btn-primary" style="background:var(--brand);border:0" onclick="scheduleFromChat()"><i class="fa-solid fa-clock me-1"></i> Schedule</button></div>
+      <div class="cardx p-2"><div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Due</th><th>Customer</th><th>Note</th><th>Owner</th><th>Status</th></tr></thead><tbody id="followupsTable"></tbody></table></div></div>
+    </section>
+
+    <section id="page-templates" class="page">
+      <div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold">Quick replies</h2><div class="text-muted">Standardize your best sales conversations.</div></div><button class="btn btn-primary" onclick="adminAddTemplate()">New template</button></div>
+      <div class="row g-3" id="templatesGrid"></div>
+    </section>
+
+    <section id="page-team" class="page">
+      <div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold">Sales team</h2><div class="text-muted">Assignments and team visibility.</div></div><button class="btn btn-primary" onclick="adminAddTeamMember()">Add member</button></div>
+      <div class="row g-3" id="teamGrid"></div>
+    </section>
+
+    <section id="page-products" class="page"><div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold">Products & stock</h2><div class="text-muted">Manage catalogue, pricing and inventory.</div></div><button class="btn btn-primary" onclick="addProduct()">Add product</button></div><div class="cardx p-3 table-responsive"><table class="table align-middle"><thead><tr><th>SKU</th><th>Product</th><th>Price</th><th>Stock</th><th>Reorder at</th><th>Action</th></tr></thead><tbody id="productsTable"></tbody></table></div></section>
+<section id="page-quotations" class="page"><div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold">Quotations</h2><div class="text-muted">Create and track customer quotes.</div></div><button class="btn btn-primary" onclick="createSalesDoc('Quotation')">New quotation</button></div><div class="cardx p-3 table-responsive"><table class="table align-middle"><thead><tr><th>Number</th><th>Customer</th><th>Total</th><th>Valid until</th><th>Status</th><th>Action</th></tr></thead><tbody id="quotationsTable"></tbody></table></div></section>
+<section id="page-invoices" class="page"><div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold">Invoices</h2><div class="text-muted">Issue invoices and track payment status.</div></div><button class="btn btn-primary" onclick="createSalesDoc('Invoice')">New invoice</button></div><div class="cardx p-3 table-responsive"><table class="table align-middle"><thead><tr><th>Number</th><th>Customer</th><th>Total</th><th>Due date</th><th>Status</th><th>Action</th></tr></thead><tbody id="invoicesTable"></tbody></table></div></section>
+<section id="page-reports" class="page"><div class="mb-4"><h2 class="fw-bold">Sales reports</h2><div class="text-muted">Live summaries based on quotations, invoices and stock.</div></div><div id="reportsContent" class="row g-3"></div><div class="cardx p-4 mt-3"><h5>Pipeline by stage</h5><div id="pipelineReport"></div><button class="btn btn-outline-secondary mt-3" onclick="exportCRMData()">Export contacts CSV</button></div></section>
+<section id="page-automation" class="page"><div class="mb-4"><h2 class="fw-bold">WhatsApp follow-up automation</h2><div class="text-muted">Due follow-ups marked for automation are processed hourly by Apps Script.</div></div><div class="cardx p-4"><p>Automation sends WhatsApp messages only when a follow-up is explicitly opted in, has reached its due time, and WhatsApp Cloud API credentials are configured.</p><div class="d-flex flex-wrap gap-2"><button class="btn btn-primary" onclick="automationControl(true)">Enable hourly automation</button><button class="btn btn-outline-danger" onclick="automationControl(false)">Disable automation</button></div><hr><h5>Recent automation runs</h5><div class="table-responsive"><table class="table"><thead><tr><th>Time</th><th>Customer</th><th>Status</th><th>Message / result</th></tr></thead><tbody id="automationTable"></tbody></table></div></div></section>
+<section id="page-audit" class="page"><div class="mb-4"><h2 class="fw-bold">System activity log</h2><div class="text-muted">Security and business changes recorded by the server.</div></div><div class="cardx p-3 table-responsive"><table class="table"><thead><tr><th>Timestamp</th><th>Actor</th><th>Action</th><th>Record</th><th>Details</th></tr></thead><tbody id="auditTable"></tbody></table></div></section>
+<section id="page-admin" class="page">
+<div class="d-flex justify-content-between align-items-center mb-4"><div><h2 class="fw-bold">Administration</h2><div class="text-muted">Manage team access, sales workflows and CRM health.</div></div><button class="btn btn-outline-secondary" onclick="refreshData()">Refresh data</button></div>
+<div class="row g-3 mb-4">
+<div class="col-md-3"><div class="cardx stat"><div class="value" id="adminContacts">0</div><div class="label">Contacts</div></div></div><div class="col-md-3"><div class="cardx stat"><div class="value" id="adminConversations">0</div><div class="label">Conversations</div></div></div><div class="col-md-3"><div class="cardx stat"><div class="value" id="adminUsers">0</div><div class="label">Team members</div></div></div><div class="col-md-3"><div class="cardx stat"><div class="value" id="adminOpenTasks">0</div><div class="label">Open follow-ups</div></div></div></div>
+<div class="row g-3"><div class="col-lg-6"><div class="cardx p-4"><div class="d-flex justify-content-between align-items-center mb-3"><h5 class="section-title mb-0">Team administration</h5><button class="btn btn-sm btn-primary" onclick="adminAddTeamMember()">Add member</button> <button class="btn btn-sm btn-outline-primary" onclick="addLoginUser()" data-permission="manage_users">Create login</button></div><div class="table-responsive"><table class="table"><thead><tr><th>Name</th><th>Role</th><th>Status</th><th>Action</th></tr></thead><tbody id="adminTeamTable"></tbody></table></div></div></div>
+<div class="col-lg-6"><div class="cardx p-4"><h5 class="section-title">Workflow tools</h5><div class="d-grid gap-2"><button class="btn btn-outline-primary" onclick="addLoginUser()" data-permission="manage_users">Create secure login</button><button class="btn btn-outline-primary" onclick="showPage('pipeline')">Manage pipeline</button><button class="btn btn-outline-primary" onclick="showPage('followups')">Review follow-ups</button><button class="btn btn-outline-primary" onclick="adminAddTemplate()">Create quick reply</button><button class="btn btn-outline-secondary" onclick="exportCRMData()">Export contacts (CSV)</button></div><hr><h6>System health</h6><div id="adminHealth" class="small text-muted">Checking configuration…</div></div></div></div></section>
+
+<section id="page-settings" class="page">
+      <div class="mb-4"><h2 class="fw-bold">Settings</h2><div class="text-muted">Connection and deployment information.</div></div>
+      <div class="cardx p-4">
+        <h5>Google Sheets + WhatsApp</h5>
+        <p class="text-muted">This application is designed to run from Google Apps Script. WhatsApp API secrets stay server-side in Script Properties.</p>
+        <div class="alert alert-light border"><i class="fa-solid fa-circle-info me-2"></i><strong>Current mode:</strong> <span id="settingsMode">Backend not connected</span></div>
+        <ol class="text-muted">
+          <li>Create the Google Sheet.</li>
+          <li>Run <code>setupSheets()</code> once.</li>
+          <li>Add WhatsApp credentials to Script Properties.</li>
+          <li>Deploy as a Web App.</li>
+          <li>Configure the Meta webhook to point to the deployed URL.</li>
+        </ol>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<div class="modal fade" id="leadModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" onsubmit="saveLead(event)">
+      <div class="modal-header"><h5 class="modal-title">Create lead</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label">Name</label><input id="leadName" class="form-control" required></div>
+          <div class="col-md-6"><label class="form-label">WhatsApp number</label><input id="leadPhone" class="form-control" placeholder="266..." required></div>
+          <div class="col-md-6"><label class="form-label">Company</label><input id="leadCompany" class="form-control"></div>
+          <div class="col-md-6"><label class="form-label">Value</label><input id="leadValue" type="number" class="form-control" value="0"></div>
+          <div class="col-12"><label class="form-label">Notes</label><textarea id="leadNotes" class="form-control"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-light" data-bs-dismiss="modal" type="button">Cancel</button><button class="btn btn-primary" style="background:var(--brand);border:0">Create lead</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="modal fade" id="followupModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form class="modal-content" onsubmit="saveFollowUp(event)">
+      <div class="modal-header"><h5 class="modal-title">Schedule follow-up</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <label class="form-label">Date and time</label><input id="followDate" type="datetime-local" class="form-control mb-3" required>
+        <label class="form-label">Note / WhatsApp message</label><textarea id="followNote" class="form-control mb-3" placeholder="Hi {{name}}, just following up…"></textarea><div class="form-check"><input id="followAutomation" type="checkbox" class="form-check-input"><label for="followAutomation" class="form-check-label">Send automatically when due (requires WhatsApp Cloud API)</label></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-light" type="button" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary" style="background:var(--brand);border:0">Schedule</button></div>
+    </form>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// Compatibility bridge: emulate Apps Script google.script.run through a Netlify serverless proxy.
+window.google = window.google || {};
+window.google.script = window.google.script || {};
+Object.defineProperty(window.google.script, 'run', {
+  configurable: true,
+  get() {
+    let success = () => {};
+    let failure = (err) => console.error(err);
+    const runner = {
+      withSuccessHandler(fn) { success = typeof fn === 'function' ? fn : () => {}; return runner; },
+      withFailureHandler(fn) { failure = typeof fn === 'function' ? fn : (err) => console.error(err); return runner; },
+      routePost(action, payload) {
+        fetch('/.netlify/functions/apps-script', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, payload: payload || {} })
+        }).then(async r => { const data = await r.json(); if (!r.ok) throw new Error(data.error || 'Backend request failed'); success(data); })
+          .catch(failure);
+      },
+      routeGet(params) {
+        const qs = new URLSearchParams(params || {});
+        fetch('/.netlify/functions/apps-script?' + qs.toString())
+          .then(async r => { const data = await r.json(); if (!r.ok) throw new Error(data.error || 'Backend request failed'); success(data); })
+          .catch(failure);
+      }
+    };
+    return runner;
+  }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+"use strict";
+
+let state = {
+  contacts:[], conversations:[], messages:[], team:[], templates:[], followUps:[], products:[], quotations:[], invoices:[], auditLog:[], automationLog:[],
+  selectedConversationId:"", inboxFilter:"all", connected:false, currentUserId:"", token:"", user:null
+};
+
+const STAGES = ["New","Contacted","Qualified","Proposal","Won"];
+
+document.addEventListener("DOMContentLoaded", async () => {
+  setupRouting();
+  renderAll();
+  await refreshData(true);
+  document.getElementById("globalSearch").addEventListener("input", renderInbox);
+});
+
+function setupRouting(){
+  document.querySelectorAll("[data-page]").forEach(a=>{
+    a.addEventListener("click", e=>{
+      e.preventDefault();
+      showPage(a.dataset.page);
+      history.replaceState({}, "", "#" + a.dataset.page);
+      document.body.classList.remove("sidebar-open");
+    });
+  });
+  const initial = location.hash.replace("#","");
+  if(initial && document.getElementById("page-"+initial)) showPage(initial);
+}
+
+function showPage(page){
+  const link=document.querySelector(`.nav-link[data-page="${page}"]`);if(link&&link.classList.contains("d-none")){toast("Your account does not have permission to open that section.","danger");page="dashboard";}
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  const target=document.getElementById("page-"+page);
+  if(target) target.classList.add("active");
+  document.querySelectorAll(".nav-link[data-page]").forEach(a=>a.classList.toggle("active",a.dataset.page===page));
+  if(page==="inbox") renderInbox();
+}
+
+function toggleSidebar(){document.body.classList.toggle("sidebar-open")}
+
+async function loginUser(e){e.preventDefault();const error=document.getElementById("loginError");error.textContent="";if(!(typeof google!=="undefined"&&google.script&&google.script.run)){error.textContent="Open this app from its deployed Google Apps Script web-app URL.";return;}google.script.run.withSuccessHandler(r=>{if(!r||!r.ok){error.textContent=r?.error||"Sign-in failed.";return;}state.token=r.token;state.user=r.user;state.currentUserId=r.user.id;document.getElementById("loginOverlay").classList.add("hidden");document.getElementById("currentUserName").textContent=r.user.name;document.getElementById("currentUserRole").textContent=r.user.role;document.getElementById("currentAvatar").textContent=initials(r.user.name);applyPermissions();refreshData(true);}).withFailureHandler(err=>error.textContent=err.message||"Sign-in failed.").routePost("login",{email:document.getElementById("loginEmail").value,password:document.getElementById("loginPassword").value});}
+function logoutUser(){if(state.token&&typeof google!=="undefined"&&google.script&&google.script.run)google.script.run.routePost("logout",{token:state.token});state.token="";state.user=null;state.currentUserId="";document.getElementById("loginOverlay").classList.remove("hidden");document.getElementById("loginPassword").value="";}
+function applyPermissions(){const p=state.user?.permissions||[];document.querySelectorAll('[data-permission]').forEach(el=>el.classList.toggle('d-none',!p.includes(el.dataset.permission)));}
+async function refreshData(silent=false){
+  if(!state.token)return;
+  try{if(typeof google!=="undefined"&&google.script&&google.script.run){google.script.run.withSuccessHandler(data=>{if(data&&data.ok){state={...state,...data,connected:true};if(!state.conversations.some(c=>c.id===state.selectedConversationId))state.selectedConversationId=state.conversations[0]?.id||"";setMode("LIVE");renderAll();if(!silent)toast("Business data refreshed.");}else if(data?.error&&/sign in|session expired|inactive/i.test(data.error)){logoutUser();document.getElementById("loginError").textContent=data.error;}else if(!silent)toast(data?.error||"Could not load data.","danger");}).withFailureHandler(err=>{setMode("OFFLINE");toast("Could not load CRM data: "+(err?.message||"check SPREADSHEET_ID and sheet setup."),"danger");}).routeGet({action:"bootstrap",token:state.token});}else setMode("OFFLINE");}catch(e){setMode("OFFLINE");}}
+
+function setMode(mode){
+  const b=document.getElementById("modeBadge");
+  b.textContent=mode;
+  b.className="badge rounded-pill "+(mode==="LIVE"?"text-bg-success":mode==="OFFLINE"?"text-bg-danger":"text-bg-warning");
+  document.getElementById("settingsMode").textContent=mode==="LIVE"?"Google Sheets connected":"Backend not connected";
+}
+
+function renderAll(){
+  renderDashboard();
+  renderInbox();
+  renderPipeline();
+  renderContacts();
+  renderFollowups();
+  renderTemplates();
+  renderTeam();
+  renderAdmin();
+  renderBusinessPages();
+  updateUnread();
+}
+
+function renderDashboard(){
+  const open=state.conversations.filter(c=>c.status!=="Closed").length;
+  const leads=state.contacts.filter(c=>c.stage!=="Won").length;
+  const value=state.contacts.reduce((s,c)=>s+Number(c.value||0),0);
+  const follow=state.followUps.filter(f=>f.status!=="Done").length;
+  document.getElementById("statInbox").textContent=open;
+  document.getElementById("statLeads").textContent=leads;
+  document.getElementById("statValue").textContent=money(value);
+  document.getElementById("statFollowups").textContent=follow;
+
+  const rows=[...state.conversations].sort((a,b)=>new Date(b.lastMessageAt)-new Date(a.lastMessageAt)).slice(0,5);
+  document.getElementById("dashboardConversations").innerHTML=rows.length?rows.map(c=>`
+    <div class="d-flex align-items-center gap-3 p-2 rounded-3" onclick="selectConversation('${c.id}');showPage('inbox')" style="cursor:pointer">
+      <div class="avatar">${initials(c.contactName)}</div>
+      <div class="flex-grow-1 min-w-0"><div class="fw-bold">${esc(c.contactName)}</div><div class="small text-muted text-truncate">${esc(c.lastMessage||"No messages")}</div></div>
+      <div class="text-end"><span class="badge-stage">${esc(c.stage||"New")}</span><div class="small text-muted mt-1">${timeAgo(c.lastMessageAt)}</div></div>
+    </div>`).join(""):`<div class="empty">No conversations yet.</div>`;
+
+  const fs=state.followUps.filter(f=>f.status!=="Done").sort((a,b)=>new Date(a.dueAt)-new Date(b.dueAt)).slice(0,5);
+  document.getElementById("dashboardFollowups").innerHTML=fs.length?fs.map(f=>{
+    const c=findContact(f.contactId);
+    return `<div class="border-bottom py-3"><div class="fw-bold">${esc(c?.name||"Unknown")}</div><div class="small text-muted">${esc(f.note||"Follow up")}</div><div class="small mt-1"><i class="fa-regular fa-clock me-1"></i>${formatDate(f.dueAt)}</div></div>`
+  }).join(""):`<div class="empty">No follow-ups scheduled.</div>`;
+}
+
+function renderInbox(){
+  const q=(document.getElementById("inboxSearch")?.value||document.getElementById("globalSearch")?.value||"").toLowerCase().trim();
+  let rows=[...state.conversations];
+  if(state.inboxFilter==="unread") rows=rows.filter(c=>Number(c.unread||0)>0);
+  if(state.inboxFilter==="mine") rows=rows.filter(c=>c.ownerId===state.currentUserId);
+  if(q) rows=rows.filter(c=>(c.contactName+" "+c.phone+" "+c.lastMessage).toLowerCase().includes(q));
+  rows.sort((a,b)=>new Date(b.lastMessageAt)-new Date(a.lastMessageAt));
+
+  document.getElementById("conversationList").innerHTML=rows.length?rows.map(c=>`
+    <div class="conv-item ${state.selectedConversationId===c.id?"selected":""}" onclick="selectConversation('${c.id}')">
+      <div class="d-flex gap-2">
+        <div class="avatar">${initials(c.contactName)}</div>
+        <div class="flex-grow-1 min-w-0">
+          <div class="d-flex justify-content-between gap-2"><div class="conv-name">${esc(c.contactName)}</div><small class="text-muted">${timeAgo(c.lastMessageAt)}</small></div>
+          <div class="conv-preview">${esc(c.lastMessage||"No messages")}</div>
+          <div class="mt-1 d-flex justify-content-between"><span class="badge-stage">${esc(c.stage||"New")}</span>${Number(c.unread||0)?`<span class="badge text-bg-danger">${c.unread}</span>`:""}</div>
+        </div>
+      </div>
+    </div>`).join(""):`<div class="empty">No conversations found.</div>`;
+
+  renderChat();
+}
+
+function selectConversation(id){
+  state.selectedConversationId=id;
+  renderInbox();
+  document.getElementById("conversationLayout").classList.add("chat-open");
+}
+
+function renderChat(){
+  const c=state.conversations.find(x=>x.id===state.selectedConversationId);
+  if(!c){
+    document.getElementById("chatName").textContent="Select a conversation";
+    document.getElementById("chatPhone").textContent="";
+    document.getElementById("chatBody").innerHTML='<div class="empty">Select a conversation to start.</div>';
+    return;
+  }
+  document.getElementById("chatAvatar").textContent=initials(c.contactName);
+  document.getElementById("chatName").textContent=c.contactName;
+  document.getElementById("chatPhone").textContent=c.phone;
+  const msgs=state.messages.filter(m=>m.conversationId===c.id).sort((a,b)=>new Date(a.timestamp)-new Date(b.timestamp));
+  document.getElementById("chatBody").innerHTML=msgs.length?msgs.map(m=>`
+    <div class="bubble ${m.direction==="outbound"?"out":"in"}">
+      <div>${linkify(esc(m.body))}</div>
+      <div class="bubble-meta">${formatTime(m.timestamp)} · ${m.status==="failed"?"Failed":m.status==="demo"?"Demo only":m.direction==="outbound"?"✓✓":"Received"}</div>
+    </div>`).join(""):`<div class="empty">No messages yet.</div>`;
+  const body=document.getElementById("chatBody");body.scrollTop=body.scrollHeight;
+  renderProfile(c);
+}
+
+function renderProfile(c){
+  const contact=findContact(c.contactId);
+  const owner=findTeam(c.ownerId||contact?.ownerId);
+  document.getElementById("profileBody").innerHTML=`
+    <div class="text-center mb-4"><div class="avatar mx-auto mb-2" style="width:64px;height:64px;font-size:20px">${initials(c.contactName)}</div><h5 class="mb-1">${esc(c.contactName)}</h5><div class="text-muted small">${esc(c.phone)}</div></div>
+    <div class="small text-muted mb-1">Company</div><div class="fw-bold mb-3">${esc(contact?.company||"—")}</div>
+    <div class="small text-muted mb-1">Pipeline stage</div><div class="mb-3"><span class="badge-stage">${esc(c.stage||"New")}</span></div>
+    <div class="small text-muted mb-1">Deal value</div><div class="fw-bold mb-3">${money(c.value||0)}</div>
+    <div class="small text-muted mb-1">Owner</div><div class="fw-bold mb-3">${esc(owner?.name||"Unassigned")}</div>
+    <hr>
+    <button class="btn btn-light w-100 mb-2" onclick="scheduleFromChat()"><i class="fa-regular fa-clock me-2"></i>Schedule follow-up</button>
+    <a class="btn btn-success w-100" target="_blank" href="https://wa.me/${normalizePhone(c.phone)}"><i class="fa-brands fa-whatsapp me-2"></i>Open WhatsApp</a>
+  `;
+}
+
+function renderPipeline(){
+  document.getElementById("pipelineBoard").innerHTML=STAGES.map(stage=>{
+    const contacts=state.contacts.filter(c=>c.stage===stage);
+    const total=contacts.reduce((s,c)=>s+Number(c.value||0),0);
+    return `<div class="kanban">
+      <div class="d-flex justify-content-between align-items-center"><div class="fw-bold">${stage}</div><span class="badge text-bg-light">${contacts.length}</span></div>
+      <div class="small text-muted mt-1">${money(total)}</div>
+      ${contacts.map(c=>`
+        <div class="deal" onclick="openContactConversation('${c.id}')">
+          <div class="d-flex gap-2"><div class="avatar" style="width:34px;height:34px">${initials(c.name)}</div><div><div class="fw-bold">${esc(c.name)}</div><div class="small text-muted">${esc(c.company||c.phone)}</div></div></div>
+          <div class="mt-3 fw-bold">${money(c.value||0)}</div>
+        </div>`).join("")}
+    </div>`
+  }).join("");
+}
+
+function renderContacts(){
+const q=(document.getElementById("contactSearch")?.value||"").toLowerCase(), stage=document.getElementById("contactStageFilter")?.value||"";
+const rows=state.contacts.filter(c=>(!stage||(c.stage||"New")===stage)&&[c.name,c.phone,c.company,c.email].some(x=>String(x||"").toLowerCase().includes(q)));
+document.getElementById("contactsTable").innerHTML=rows.map(c=>{const owner=findTeam(c.ownerId);return `<tr><td><div class="d-flex align-items-center gap-2"><div class="avatar">${initials(c.name)}</div><div><div class="fw-bold">${esc(c.name)}</div><div class="small text-muted">${esc(c.email||"")}</div></div></div></td><td>${esc(c.phone)}</td><td>${esc(c.company||"—")}</td><td><select class="form-select form-select-sm" onchange="updateContactStage('${c.id}',this.value)">${["New","Contacted","Qualified","Proposal","Won","Lost"].map(x=>`<option ${((c.stage||"New")===x)?"selected":""}>${x}</option>`).join("")}</select></td><td>${esc(owner?.name||"Unassigned")}</td><td class="fw-bold">${money(c.value||0)}</td><td><button class="btn btn-sm btn-light" onclick="openContactConversation('${c.id}')"><i class="fa-solid fa-comments"></i></button> <button class="btn btn-sm btn-light" onclick="editContact('${c.id}')"><i class="fa-solid fa-pen"></i></button></td></tr>`}).join("") || `<tr><td colspan="7"><div class="empty">No matching contacts.</div></td></tr>`;
+}
+function renderFollowups(){
+  document.getElementById("followupsTable").innerHTML=state.followUps.map(f=>{
+    const c=findContact(f.contactId), owner=findTeam(f.ownerId);
+    return `<tr><td>${formatDate(f.dueAt)}</td><td class="fw-bold">${esc(c?.name||"Unknown")}</td><td>${esc(f.note||"")}</td><td>${esc(owner?.name||"Unassigned")}</td><td><span class="badge ${f.status==="Done"?"text-bg-success":"text-bg-warning"}">${esc(f.status||"Open")}</span></td><td>${f.status==="Done"?"—":`<button class="btn btn-sm btn-outline-success" onclick="completeFollowUp('${f.id}')">Mark done</button>`}</td></tr>`
+  }).join("") || `<tr><td colspan="6"><div class="empty">No follow-ups.</div></td></tr>`;
+}
+
+function renderTemplates(){
+  document.getElementById("templatesGrid").innerHTML=state.templates.map(t=>`
+    <div class="col-md-6 col-xl-4"><div class="quick-template h-100" onclick="useTemplate('${t.id}')"><div class="d-flex justify-content-between mb-2"><strong>${esc(t.name)}</strong><span class="badge-stage">${esc(t.category||"General")}</span></div><div class="small text-muted">${esc(t.body)}</div><div class="small text-primary mt-3"><i class="fa-solid fa-bolt me-1"></i> Use in chat</div></div></div>
+  `).join("");
+}
+
+function renderTeam(){
+document.getElementById("teamGrid").innerHTML=state.team.map(u=>`<div class="col-md-6 col-xl-4"><div class="cardx p-4"><div class="d-flex gap-3"><div class="avatar" style="width:52px;height:52px">${initials(u.name)}</div><div><h5 class="mb-1">${esc(u.name)}</h5><div class="text-muted small">${esc(u.role||"Sales")}</div><div class="small mt-2">${esc(u.email||"")}</div></div></div><div class="mt-3"><span class="badge ${String(u.active).toLowerCase()==="false"?"text-bg-secondary":"text-bg-success"}">${String(u.active).toLowerCase()==="false"?"Inactive":"Active"}</span> <button class="btn btn-sm btn-outline-secondary ms-2" onclick="toggleTeamMember('${u.id}')">${String(u.active).toLowerCase()==="false"?"Activate":"Deactivate"}</button></div></div></div>`).join("");renderAdmin();
+}
+function updateUnread(){
+  const n=state.conversations.reduce((s,c)=>s+Number(c.unread||0),0);
+  document.getElementById("navUnread").textContent=n;
+}
+
+function setInboxFilter(v){state.inboxFilter=v;renderInbox()}
+function markRead(){
+  const c=state.conversations.find(x=>x.id===state.selectedConversationId);
+  if(!c || Number(c.unread||0)===0) return;
+  c.unread="0"; updateUnread(); renderInbox();
+  if(typeof google!=="undefined" && google.script && google.script.run && state.token){
+    google.script.run.withSuccessHandler(r=>{
+      if(!r || !r.ok) toast(r?.error||"Could not mark conversation read.","danger");
+    }).withFailureHandler(err=>toast("Could not mark conversation read: "+(err.message||"server error"),"danger"))
+      .routePost("markRead",{id:c.id,token:state.token});
+  }
+}
+
+function sendMessage(){
+  const input=document.getElementById("messageInput");
+  const body=input.value.trim();
+  const c=state.conversations.find(x=>x.id===state.selectedConversationId);
+  if(!body||!c)return;
+  const msg={id:"local_"+Date.now(),conversationId:c.id,contactId:c.contactId,direction:"outbound",body,timestamp:new Date().toISOString(),status:"sending"};
+  state.messages.push(msg);
+  c.lastMessage=body;c.lastMessageAt=msg.timestamp;c.unread="0";
+  input.value="";
+  renderInbox();updateUnread();
+  serverSendMessage(c,body);
+}
+
+function serverSendMessage(c,body){
+  if(typeof google==="undefined" || !google.script || !google.script.run){
+    const pending=state.messages.find(x=>x.body===body && x.conversationId===c.id && x.status==="sending");
+    if(pending) pending.status="failed";
+    toast("Message was not saved. Open the deployed Apps Script web app and check the backend.","danger");
+    renderChat(); return;
+  }
+  google.script.run.withSuccessHandler(r=>{
+    const pending=state.messages.find(x=>x.body===body && x.conversationId===c.id && x.status==="sending");
+    if(r && r.ok){
+      if(pending) state.messages=state.messages.filter(x=>x!==pending);
+      toast(r.demo?"Demo mode: message saved in CRM, but not sent to WhatsApp.":"WhatsApp message sent.",r.demo?"warning":"success");
+      refreshData(true);
+    }else{
+      if(pending) pending.status="failed";
+      toast(r?.error||"WhatsApp send failed.","danger"); renderChat();
+    }
+  }).withFailureHandler(err=>{
+    const pending=state.messages.find(x=>x.body===body && x.conversationId===c.id && x.status==="sending");
+    if(pending) pending.status="failed";
+    toast("Send failed: "+(err.message||"server error"),"danger"); renderChat();
+  }).routePost("sendMessage",{to:c.phone,body,conversationId:c.id,contactId:c.contactId,senderId:state.currentUserId,token:state.token});
+}
+
+function handleComposerKey(e){
+  if(e.key==="Enter" && !e.shiftKey){e.preventDefault();sendMessage();}
+}
+
+function insertTemplate(){
+  const t=state.templates[0];if(!t)return;
+  const c=state.conversations.find(x=>x.id===state.selectedConversationId);
+  document.getElementById("messageInput").value=(t.body||"").replaceAll("{{name}}",c?.contactName||"there");
+}
+
+function useTemplate(id){
+  const t=state.templates.find(x=>x.id===id);if(!t)return;
+  showPage("inbox");
+  const c=state.conversations.find(x=>x.id===state.selectedConversationId);
+  document.getElementById("messageInput").value=t.body.replaceAll("{{name}}",c?.contactName||"there");
+  document.getElementById("messageInput").focus();
+}
+
+function openNewLead(){
+  new bootstrap.Modal(document.getElementById("leadModal")).show();
+}
+
+function saveLead(e){
+  e.preventDefault();
+  if(!state.token){toast("Please sign in before saving a lead.","danger");return;}
+  const obj={id:"contact_"+Date.now(),name:v("leadName"),phone:v("leadPhone"),company:v("leadCompany"),value:v("leadValue")||"0",notes:v("leadNotes"),email:"",source:"WhatsApp",ownerId:state.currentUserId,stage:"New",lastContact:new Date().toISOString(),createdAt:new Date().toISOString()};
+  if(!obj.name || !obj.phone){toast("Enter a customer name and WhatsApp number.","danger");return;}
+  const form=document.querySelector("#leadModal form");
+  const submit=form?.querySelector('[type="submit"]');
+  if(submit) submit.disabled=true;
+  if(typeof google==="undefined" || !google.script || !google.script.run){if(submit)submit.disabled=false;toast("Open the deployed Apps Script web app before saving leads.","danger");return;}
+  google.script.run.withSuccessHandler(r=>{
+    if(submit)submit.disabled=false;
+    if(!r || !r.ok){toast(r?.error||"Lead could not be saved.","danger");return;}
+    bootstrap.Modal.getInstance(document.getElementById("leadModal"))?.hide();
+    form?.reset(); refreshData(true); showPage("contacts"); toast("Lead saved to Google Sheets.");
+  }).withFailureHandler(err=>{
+    if(submit)submit.disabled=false;
+    toast("Lead save failed: "+(err.message||"server error"),"danger");
+  }).routePost("saveContact",{...obj,token:state.token});
+}
+function scheduleFromChat(){
+  if(!state.selectedConversationId){toast("Select a conversation first.","warning");return}
+  const d=new Date(Date.now()+24*3600000);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+  document.getElementById("followDate").value=d.toISOString().slice(0,16);
+  new bootstrap.Modal(document.getElementById("followupModal")).show();
+}
+
+function saveFollowUp(e){
+  e.preventDefault();
+  const c=state.conversations.find(x=>x.id===state.selectedConversationId);
+  if(!c){toast("Select a conversation before scheduling a follow-up.","warning");return;}
+  const dateValue=document.getElementById("followDate").value;
+  if(!dateValue){toast("Choose a follow-up date and time.","danger");return;}
+  const obj={contactId:c.contactId||"",conversationId:c.id||"",ownerId:state.currentUserId,dueAt:new Date(dateValue).toISOString(),note:v("followNote"),status:"Open",automationEnabled:document.getElementById("followAutomation").checked?"TRUE":"FALSE"};
+  persistAction("saveFollowUp",obj,()=>{
+    bootstrap.Modal.getInstance(document.getElementById("followupModal"))?.hide();
+    document.getElementById("followNote").value="";
+    toast("Follow-up saved to Google Sheets.");
+  });
+}
+function completeFollowUp(id){
+  const f=state.followUps.find(x=>x.id===id);
+  if(!f || f.status==="Done") return;
+  persistAction("updateFollowUp",{id,status:"Done"},()=>toast("Follow-up marked as done."));
+}
+
+function openContactConversation(contactId){
+  const c=state.conversations.find(x=>x.contactId===contactId);
+  if(c){selectConversation(c.id);showPage("inbox")}
+  else {showPage("inbox");toast("No WhatsApp conversation exists for this contact yet.","warning")}
+}
+
+
+function persistAction(action,obj,success){if(typeof google!=="undefined"&&google.script&&google.script.run){google.script.run.withSuccessHandler(r=>{if(!r||!r.ok)toast(r?.error||"Save failed","danger");else{if(success)success();refreshData(true);}}).withFailureHandler(e=>toast("Save failed: "+e.message,"danger")).routePost(action,{...obj,token:state.token});}else toast("Connect to the Apps Script backend first.","danger");}
+function updateContactStage(id,stage){const c=findContact(id);if(!c)return;c.stage=stage;const cv=state.conversations.find(x=>x.contactId===id);if(cv)cv.stage=stage;persistAction("updateContact",{id,stage},()=>toast("Lead stage updated."));renderAll();}
+function editContact(id){const c=findContact(id);if(!c)return;const name=prompt("Contact name:",c.name||"");if(name===null)return;const phone=prompt("WhatsApp number:",c.phone||"");if(phone===null)return;const company=prompt("Company:",c.company||"");if(company===null)return;const value=prompt("Estimated deal value (M):",c.value||"0");if(value===null)return;Object.assign(c,{name:name.trim(),phone:phone.trim(),company:company.trim(),value:String(Number(value)||0)});state.conversations.filter(x=>x.contactId===id).forEach(x=>{x.contactName=c.name;x.phone=c.phone;x.value=c.value});persistAction("updateContact",{id,name:c.name,phone:c.phone,company:c.company,value:c.value},()=>toast("Contact updated."));renderAll();}
+function adminAddTeamMember(){const name=prompt("Team member name:");if(!name||!name.trim())return;const email=prompt("Email address:")||"",role=prompt("Role (Manager, Sales, Admin):","Sales")||"Sales",phone=prompt("Phone (optional):")||"";const u={id:"user_"+Date.now(),name:name.trim(),email,role,phone,active:"TRUE"};state.team.push(u);persistAction("saveTeamMember",u,()=>toast("Team member saved."));renderAll();}
+function toggleTeamMember(id){const u=findTeam(id);if(!u)return;u.active=String(u.active).toLowerCase()==="false"?"TRUE":"FALSE";persistAction("updateTeamMember",{id,active:u.active},()=>toast("Team member status updated."));renderAll();}
+function adminAddTemplate(){const name=prompt("Template name:");if(!name||!name.trim())return;const body=prompt("Message body (use {{name}} for customer name):");if(!body)return;const category=prompt("Category:","General")||"General";const t={id:"template_"+Date.now(),name:name.trim(),body,category,active:"TRUE"};state.templates.push(t);persistAction("saveTemplate",t,()=>toast("Quick reply saved."));renderAll();}
+function renderAdmin(){const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val};set("adminContacts",state.contacts.length);set("adminConversations",state.conversations.length);set("adminUsers",state.team.length);set("adminOpenTasks",state.followUps.filter(f=>f.status!=="Done").length);const tb=document.getElementById("adminTeamTable");if(tb)tb.innerHTML=state.team.map(u=>`<tr><td>${esc(u.name)}<div class="small text-muted">${esc(u.email||"")}</div></td><td>${esc(u.role||"Sales")}</td><td>${String(u.active).toLowerCase()==="false"?"Inactive":"Active"}</td><td><button class="btn btn-sm btn-outline-secondary" onclick="toggleTeamMember('${u.id}')">${String(u.active).toLowerCase()==="false"?"Activate":"Deactivate"}</button></td></tr>`).join("");const h=document.getElementById("adminHealth");if(h)h.innerHTML=`<div>Frontend: <strong>Ready</strong></div><div>Data mode: <strong>${typeof google!=="undefined"&&google.script&&google.script.run?"Apps Script connected":"Backend unavailable"}</strong></div><div>WhatsApp: configure server-side Script Properties to enable sending.</div><div class="mt-2">Protected actions use server-side role checks. Keep credentials private and review the production checklist.</div>`;}
+function exportCRMData(){const headers=["id","name","phone","email","company","source","ownerId","stage","value","lastContact","notes","createdAt"];const rows=[headers,...state.contacts.map(c=>headers.map(h=>c[h]??""))];const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\\r\\n");const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="crm-contacts.csv";a.click();URL.revokeObjectURL(url);}
+
+function renderBusinessPages(){const products=document.getElementById("productsTable");if(products)products.innerHTML=state.products.map(p=>`<tr><td>${esc(p.sku)}</td><td><strong>${esc(p.name)}</strong><div class="small text-muted">${esc(p.description||"")}</div></td><td>${money(p.price)}</td><td><span class="badge ${Number(p.stock)<=Number(p.reorderLevel)?"text-bg-danger":"text-bg-success"}">${Number(p.stock||0)}</span></td><td>${Number(p.reorderLevel||0)}</td><td><button class="btn btn-sm btn-outline-secondary" onclick="adjustProductStock('${p.id}')">Adjust stock</button></td></tr>`).join("")||'<tr><td colspan="6" class="text-muted">No products yet.</td></tr>';
+const customer=id=>state.contacts.find(c=>c.id===id)?.name||"Unknown customer";const q=document.getElementById("quotationsTable");if(q)q.innerHTML=state.quotations.map(d=>`<tr><td>${esc(d.number)}</td><td>${esc(customer(d.contactId))}</td><td>${money(d.total)}</td><td>${esc(d.validUntil||"—")}</td><td>${esc(d.status)}</td><td><button class="btn btn-sm btn-outline-primary" onclick="changeDocStatus('Quotation','${d.id}')">Update status</button><button class="btn btn-sm btn-outline-secondary ms-1" onclick="convertQuotation('${d.id}')">Invoice</button></td></tr>`).join("")||'<tr><td colspan="6" class="text-muted">No quotations yet.</td></tr>';
+const inv=document.getElementById("invoicesTable");if(inv)inv.innerHTML=state.invoices.map(d=>`<tr><td>${esc(d.number)}</td><td>${esc(customer(d.contactId))}</td><td>${money(d.total)}</td><td>${esc(d.dueDate||"—")}</td><td>${esc(d.status)}</td><td><button class="btn btn-sm btn-outline-primary" onclick="changeDocStatus('Invoice','${d.id}')">Update status</button></td></tr>`).join("")||'<tr><td colspan="6" class="text-muted">No invoices yet.</td></tr>';
+const reports=document.getElementById("reportsContent");if(reports){const revenue=state.invoices.filter(x=>x.status==="Paid").reduce((n,x)=>n+Number(x.total||0),0),outstanding=state.invoices.filter(x=>x.status!=="Paid").reduce((n,x)=>n+Number(x.total||0),0),quoteValue=state.quotations.filter(x=>!["Rejected","Expired"].includes(x.status)).reduce((n,x)=>n+Number(x.total||0),0),low=state.products.filter(x=>Number(x.stock)<=Number(x.reorderLevel)).length;reports.innerHTML=[["Paid revenue",money(revenue),"fa-sack-dollar"],["Outstanding invoices",money(outstanding),"fa-file-invoice"],["Open quotation value",money(quoteValue),"fa-file-lines"],["Low-stock products",low,"fa-boxes-stacked"]].map(x=>`<div class="col-sm-6 col-xl-3"><div class="cardx stat"><div class="stat-icon mb-3"><i class="fa-solid ${x[2]}"></i></div><div class="value">${x[1]}</div><div class="label">${x[0]}</div></div></div>`).join("");const stages={};state.contacts.forEach(c=>stages[c.stage||"New"]=(stages[c.stage||"New"]||0)+1);document.getElementById("pipelineReport").innerHTML=Object.entries(stages).map(([k,v])=>`<div class="mb-3"><div class="d-flex justify-content-between"><span>${esc(k)}</span><strong>${v}</strong></div><div class="progress"><div class="progress-bar" style="width:${Math.min(100,v/Math.max(1,state.contacts.length)*100)}%;background:var(--brand)"></div></div></div>`).join("")||"No sales data yet.";}
+const at=document.getElementById("auditTable");if(at)at.innerHTML=[...(state.auditLog||[])].reverse().slice(0,200).map(a=>`<tr><td>${formatDate(a.timestamp)}</td><td>${esc(a.actorId||"System")}</td><td>${esc(a.action)}</td><td>${esc(a.recordType)} / ${esc(a.recordId)}</td><td class="small">${esc(a.details||"")}</td></tr>`).join("")||'<tr><td colspan="5" class="text-muted">No activity yet.</td></tr>';
+const auto=document.getElementById("automationTable");if(auto)auto.innerHTML=[...(state.automationLog||[])].reverse().slice(0,100).map(a=>`<tr><td>${formatDate(a.timestamp)}</td><td>${esc(customer(a.contactId))}</td><td><span class="badge ${a.status==="SENT"?"text-bg-success":"text-bg-danger"}">${esc(a.status)}</span></td><td>${esc(a.message||"")}</td></tr>`).join("")||'<tr><td colspan="4" class="text-muted">No automated messages sent.</td></tr>';
+}
+function addLoginUser(){const name=prompt("Full name:");if(!name)return;const email=prompt("Email address:");if(!email)return;const role=prompt("Role: Admin, Manager, Sales, Viewer","Sales")||"Sales";const password=prompt("Temporary password (minimum 12 characters):");if(!password)return;persistAction("createLoginUser",{name,email,role,password},()=>toast("Login account created. Share credentials securely and ask the user to change the temporary password."));}
+function addProduct(){const name=prompt("Product or service name:");if(!name)return;const sku=prompt("SKU:","SKU-"+Date.now().toString().slice(-6))||"";const price=Number(prompt("Unit price (LSL):","0"));const stock=Number(prompt("Opening stock:","0"));const reorderLevel=Number(prompt("Low-stock alert threshold:","5"));persistAction("saveProduct",{name,sku,price,stock,reorderLevel,description:prompt("Description (optional):")||"",active:"TRUE"},()=>toast("Product saved."));}
+function adjustProductStock(id){const p=state.products.find(x=>x.id===id);if(!p)return;const change=Number(prompt("Stock change (use negative number to remove stock):","1"));if(!Number.isFinite(change)||change===0)return;persistAction("adjustStock",{id,change},()=>toast("Stock updated."));}
+function createSalesDoc(type){if(!state.contacts.length||!state.products.length){toast("Add at least one customer and one product first.","danger");return;}const cList=state.contacts.map((c,i)=>`${i+1}. ${c.name} [${c.id}]`).join("\n"),cId=prompt("Enter customer ID from this list:\n"+cList,state.contacts[0].id);if(!cId)return;const prodList=state.products.map((p,i)=>`${i+1}. ${p.name} — ${money(p.price)} (stock ${p.stock}) [${p.id}]`).join("\n"),pId=prompt("Enter product ID from this list:\n"+prodList,state.products[0].id);if(!pId)return;const quantity=Number(prompt("Quantity:","1"));if(!Number.isFinite(quantity)||quantity<1)return;const tax=Number(prompt("Tax amount (LSL):","0"))||0;const date=prompt(type==="Invoice"?"Invoice due date (YYYY-MM-DD):":"Quotation valid until (YYYY-MM-DD):","")||"";const payload={contactId:cId,items:[{productId:pId,quantity}],tax};payload[type==="Invoice"?"dueDate":"validUntil"]=date;persistAction(type==="Invoice"?"createInvoice":"createQuotation",payload,()=>toast(type+" created."));}
+function convertQuotation(id){const q=state.quotations.find(x=>x.id===id);if(!q)return;const items=JSON.parse(q.itemsJson||"[]").map(x=>({productId:x.productId,quantity:x.quantity}));persistAction("createInvoice",{contactId:q.contactId,items,tax:q.tax,quotationId:q.id,dueDate:prompt("Invoice due date (YYYY-MM-DD):","")||""},()=>toast("Invoice created from quotation."));}
+function changeDocStatus(type,id){const status=prompt(type+" status (Draft, Sent, Accepted, Rejected, Paid, Unpaid, Overdue):",type==="Invoice"?"Unpaid":"Sent");if(!status)return;persistAction("updateDocumentStatus",{type,id,status},()=>toast(type+" status updated."));}
+function automationControl(enable){persistAction(enable?"enableFollowupAutomation":"disableFollowupAutomation",{},()=>toast(enable?"Hourly automation enabled.":"Automation disabled."));}
+
+function findContact(id){return state.contacts.find(c=>c.id===id)}
+function findTeam(id){return state.team.find(u=>u.id===id)}
+function v(id){return document.getElementById(id).value.trim()}
+function initials(name){return String(name||"?").split(/\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase()}
+function normalizePhone(p){return String(p||"").replace(/\D/g,"")}
+function money(n){return "M"+Number(n||0).toLocaleString("en-ZA",{maximumFractionDigits:0})}
+function formatDate(x){if(!x)return"—";return new Date(x).toLocaleString("en-ZA",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})}
+function formatTime(x){return new Date(x).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}
+function timeAgo(x){const d=(Date.now()-new Date(x).getTime())/1000;if(d<60)return"now";if(d<3600)return Math.floor(d/60)+"m";if(d<86400)return Math.floor(d/3600)+"h";return Math.floor(d/86400)+"d"}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function linkify(s){return s.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>')}
+function toast(message,type="success"){
+  const el=document.createElement("div");
+  el.className="alert alert-"+type+" shadow-lg mb-2";
+  el.innerHTML='<i class="fa-solid fa-circle-info me-2"></i>'+esc(message);
+  document.getElementById("toastWrap").appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+</script>
+</body>
+</html>
